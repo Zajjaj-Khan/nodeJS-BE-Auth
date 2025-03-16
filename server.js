@@ -20,15 +20,7 @@ app.use(
     })
   );
 
-// Middleware
-app.use(
-    session({
-      secret: "QUICKQUIZ",
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false, httpOnly: true },
-    })
-  );
+
 
 
   app.use((req, res, next) => {
