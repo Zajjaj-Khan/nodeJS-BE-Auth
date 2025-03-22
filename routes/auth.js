@@ -2,7 +2,7 @@ import e from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import { OAuth2Client } from "google-auth-library";
-import mongoose from "mongoose";
+import bcrypt from 'bcrypt'
 dotenv.config();
 const router = e.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -15,7 +15,7 @@ router.post('/register',async(req,res)=>{
   const {email,password,name} = req.body;
   const uniqueString = randString();
   const isVerified = false;
-
+  const saltRounds = 10;
   let user = await User.findOne({ email: email });
 
   if(!user){
