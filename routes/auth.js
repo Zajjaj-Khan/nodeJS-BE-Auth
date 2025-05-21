@@ -11,28 +11,38 @@ import { authenticateJWT} from "../middleware/auth.js";
 import { randString , sendEmail} from "../utils/helper.js";
 import jwt from 'jsonwebtoken'
 //route for Registeration
-router.post('/register',async(req,res)=>{
-  const {email,password,name} = req.body;
-  const uniqueString = randString();
-  const isVerified = false;
-  const saltRounds = 10;
-  let user = await User.findOne({ email: email });
+router.post('/register', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const uniqueString = randString();
+    const isVerified = false;
+    const saltRounds = 10;
 
-  if(!user){
-    user = await User.create({
-      isVerified,
-      verificationCode:uniqueString,
-      ...req.body
-    });
-    sendEmail(email,uniqueString);
-    res.json(user);
+    let user = await User.findOne({ email: email });
+
+    if (!user) {
+      user = await User.create({
+        isVerified,
+        verificationCode: uniqueString,
+        ...req.body
+      });
+
+      sendEmail(email, uniqueString);
+      return res.status(201).json(user); // ✅ added return
+    }
+
+    return res.status(400).json('This Email is Already Registered'); // ✅ added return
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json('Internal server error');
   }
-  res.status(400).json('This Email is Already Registerd');
-  
-})
+});
 
+//route for verification code
 router.get('/verify/:verificationCode', async (req, res) => {
   const { verificationCode } = req.params;
+  console.log("Verification Code:", verificationCode); // Debugging
 
   if (!verificationCode) {
     return res.status(400).json({ error: 'Verification code is required' });
