@@ -17,21 +17,24 @@ router.post('/register', async (req, res) => {
     const uniqueString = randString();
     const isVerified = false;
     const saltRounds = 10;
-
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     let user = await User.findOne({ email: email });
 
-    if (!user) {
+    if (!user || !user.isVerified) {
       user = await User.create({
         isVerified,
         verificationCode: uniqueString,
-        ...req.body
+        ...req.body,
+        password: hashedPassword,
       });
 
       sendEmail(email, uniqueString);
-      return res.status(201).json(user); // ✅ added return
+      return res.status(201).json(user); 
     }
-
-    return res.status(400).json('This Email is Already Registered'); // ✅ added return
+    if(user.isVerified){
+      return res.status(400).json('This Email is Already Registered'); 
+    }
+    return;
 
   } catch (error) {
     console.error(error);
