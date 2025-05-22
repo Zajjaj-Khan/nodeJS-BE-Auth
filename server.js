@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
-import passport from "passport";
-import session from "express-session";
 import cors from "cors"; 
 import authRoutes from "./routes/auth.js";
 
