@@ -16,19 +16,24 @@ router.post('/register',async(req,res)=>{
   const uniqueString = randString();
   const isVerified = false;
   const saltRounds = 10;
-  let user = await User.findOne({ email: email });
+  try {
+    let user = await User.findOne({ email });
 
-  if(!user){
-    user = await User.create({
-      isVerified,
-      verificationCode:uniqueString,
-      ...req.body
-    });
-    sendEmail(email,uniqueString);
-    res.json(user);
+    if (!user) {
+      user = await User.create({
+        isVerified,
+        verificationCode: uniqueString,
+        ...req.body
+      });
+
+      sendEmail(email, uniqueString);
+      return res.json(user); // ✅ return stops further execution
+    }
+    return res.status(400).json('This Email is Already Registerd');
+  }catch(e){
+    console.error(e);
+    return res.status(500).json({ error: 'Server error' });
   }
-  res.status(400).json('This Email is Already Registerd');
-  
 })
 
 router.get('/verify/:verificationCode', async (req, res) => {
